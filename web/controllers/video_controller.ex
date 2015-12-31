@@ -4,6 +4,7 @@ defmodule Rumbl.VideoController do
   alias Rumbl.Video
 
   plug :scrub_params, "video" when action in [:create, :update]
+  plug :load_categories when action in [:new, :create, :edit, :update]
 
   def action(conn, _) do
     apply(__MODULE__, action_name(conn),
@@ -40,7 +41,8 @@ defmodule Rumbl.VideoController do
   end
 
   def show(conn, %{"id" => id}, user) do
-    video = Repo.get!(user_videos(user), id)
+    # http://blog.plataformatec.com.br/2015/08/working-with-ecto-associations-and-embeds/
+    video = Repo.get!(user_videos(user), id) |> Repo.preload(:category)
     render(conn, "show.html", video: video)
   end
 
@@ -78,5 +80,13 @@ defmodule Rumbl.VideoController do
 
   defp user_videos(user) do
     assoc(user, :videos)
+  end
+
+  defp load_categories(conn, _) do
+    categories = 
+      Repo.all from(c in Rumbl.Category,
+                    order_by: c.name,
+                    select: { c.name, c.id })
+    assign(conn, :categories, categories)
   end
 end

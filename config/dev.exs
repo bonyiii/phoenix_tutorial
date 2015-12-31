@@ -37,7 +37,7 @@ config :phoenix, :stacktrace_depth, 20
 config :rumbl, Rumbl.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
-  password: "postgres",
+  password: "password",
   database: "rumbl_dev",
-  hostname: "localhost",
+  hostname: "bear-docker.home",
   pool_size: 10
