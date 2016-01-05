@@ -14,13 +14,23 @@ defmodule Rumbl.VideoChannel do
   end
 
   def handle_in("new_annotation", params, socket) do
-    broadcast! socket, "new_annotation", %{
-      user: %{username: "anon"},
-      body: params["body"],
-      at: params["at"]
-    }
+    user = socket.assigns.current_user
+    {video_id, _} = Integer.parse(socket.assigns.video_id)
+    changeset =
+    user
+    |> Ecto.Model.build(:annotations, video_id: video_id)
+    |> Rumbl.Annotation.changeset(params)
 
-   {:reply, :ok, socket}
+    case Repo.insert(changeset) do
+      {:ok, annotation} ->
+        broadcast! socket, "new_annotation", %{
+          user: Rumbl.UserView.render("user.json", %{user: user}),
+          body: annotation.body,
+          at: annotation.at
+        }
+        {:reply, :ok, socket}
+      {:error, changeset} ->
+        {:reply, {:error, %{errors: changeset}}, socket}
+    end
   end
-
 end
