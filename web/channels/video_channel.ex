@@ -3,7 +3,14 @@ defmodule Rumbl.VideoChannel do
 
   def join("videos:" <> video_id, _params, socket) do
     #:timer.send_interval(3_000, :ping)
-    { :ok, assign(socket, :video_id, video_id) }
+    video = Rumbl.Repo.get!(Rumbl.Video, video_id)
+    annotations = Repo.all(from a in assoc(video, :annotations),
+                          order_by: [desc: a.at],
+                          limit: 200,
+                          preload: [:user])
+    resp = %{annotations: Phoenix.View.render_many(annotations, Rumbl.AnnotationView, "annotations.json")}
+
+    { :ok, resp, assign(socket, :video_id, video_id) }
   end
 
   def handle_info(:ping, socket) do
