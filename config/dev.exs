@@ -41,3 +41,5 @@ config :rumbl, Rumbl.Repo,
   database: "rumbl_dev",
   hostname: "bear-docker.home",
   pool_size: 10
+  
+import_config "dev.secret.exs"

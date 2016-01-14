@@ -1,4 +1,4 @@
-defmodule Ruml.InfoSys.Supervisor do
+defmodule Rumbl.InfoSys.Supervisor do
   use Supervisor
 
   def start_link() do
@@ -10,6 +10,6 @@ defmodule Ruml.InfoSys.Supervisor do
       worker(Rumbl.InfoSys, [], restart: :temporary)
     ]
 
-    supervise children, startegy: :simple_one_for_one
+    supervise children, strategy: :simple_one_for_one
   end
 end
